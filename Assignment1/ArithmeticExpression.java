@@ -3,40 +3,87 @@ package Assignment1;
 import java.util.Scanner;
 import java.util.Stack;
 
+
+
 public class ArithmeticExpression {
     public static void main(String[] args) {
-        Stack<Character> operator = new Stack<Character>();
-        Stack<Character> operand = new Stack<Character>();
-        String a;
         Scanner sc = new Scanner(System.in);
-        System.out.println("Enter any arithmetic expression(with brackets) : ");
-        a = sc.nextLine();
-        for(int i=0;i<a.length()+1;i++){
-            if(a.charAt(i) == '('){
-                if((int)a.charAt(i+1) >= 48 && (int)a.charAt(i+1) <= 57)
-                    operand.add(a.charAt(i+1));
-                else if(a.charAt(i+1) == '+' || a.charAt(i+1) == '-' || a.charAt(i+1) == '*' ||
-                        a.charAt(i+1) == '/' || a.charAt(i+1) == '^')
-                    operator.add(a.charAt(i+1));
-                else if(a.charAt(i+1) == ')'){
+        String exp = sc.nextLine();
+        System.out.println("The value of above expression is : "+String.valueOf(evaluate(exp)));
+    }
 
+    public static int precedence(char ch){
+        if(ch=='-' || ch=='+'){
+            return 1;
+        }else if(ch=='/' || ch=='*'){
+            return 2;
+        }
+        return 0;
+    }
+    public static int  evaluate(String exp) {
+
+        Stack<Integer> values = new Stack<>();
+        Stack<Character> op = new Stack<>();
+        for(int i=0;i<exp.length();i++){
+            if(exp.charAt(i) >='0' && exp.charAt(i) <='9'){
+                values.push(exp.charAt(i)-'0');
+            }else if (exp.charAt(i)=='('){
+                op.push(exp.charAt(i));
+            }else if (exp.charAt(i)==')'){
+                while(op.size()!=0 && op.peek()!='('){
+                    int b= values.pop();
+                    int a=values.pop();
+                    char o=op.pop();
+                    if(o=='+'){
+                        values.push(a+b);
+                    }else if(o=='-'){
+                        values.push(a-b);
+
+                    }else if(o=='*'){
+                        values.push(a*b);
+                    }else if(o=='/'){
+                        values.push(a/b);
+                    }
+                }
+                op.pop();
+            }else{
+
+                while (values.size()>=2 && op.size() != 0 && precedence(exp.charAt(i)) <= precedence(op.peek())) {
+                    int b = values.pop();
+                    int a = values.pop();
+                    char o = op.pop();
+                    if (o == '+') {
+                        values.push(a + b);
+                    } else if (o == '-') {
+                        values.push(a - b);
+
+                    } else if (o == '*') {
+                        values.push(a * b);
+                    } else if (o == '/') {
+                        values.push(a / b);
+                    }
                 }
 
+                op.push(exp.charAt(i));
             }
         }
-    }
-    public static int calculator(int a,int b, String c){
-        if(c == "+")
-            return a+b;
-        else if(c=="-")
-            return a-b;
-        else if(c=="*")
-            return a*b;
-        else if(c=="/")
-            return a/b;
-        else if(c=="^")
-            return (int) Math.pow((double)a,(double)b);
-        else
-            return -1;
+
+        while( values.size()>1){
+            int b = values.pop();
+            int a = values.pop();
+            char o = op.pop();
+            if (o == '+') {
+                values.push(a + b);
+            } else if (o == '-') {
+                values.push(a - b);
+
+            } else if (o == '*') {
+                values.push(a * b);
+            } else if (o == '/') {
+                values.push(a / b);
+            }
+        }
+
+        return values.pop();
     }
 }
